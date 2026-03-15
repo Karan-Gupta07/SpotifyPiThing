@@ -62,7 +62,19 @@ python run.py
 
 On the Pi (or from another device using the Pi’s IP), open `http://127.0.0.1:8888/` or `http://<Pi-IP>:8888/`, click **Log in with Spotify**, and complete login. After that you can stop the server (Ctrl+C). The token is saved so it will reconnect on every boot.
 
-### 3. Start the backend at boot (systemd)
+### 3. Start the backend at boot + kiosk (one command)
+
+On the Pi, from the project directory, run:
+
+```bash
+cd ~/SpotifyPiThing
+chmod +x deploy/install-on-pi.sh
+./deploy/install-on-pi.sh
+```
+
+This installs the systemd service and kiosk autostart using **your** user and path (no manual editing). Then **log out and log in** (or reboot). If the browser still doesn't open, see **Troubleshooting** below.
+
+**Manual install (if you prefer):**
 
 ```bash
 sudo cp deploy/spotify-pi-thing.service /etc/systemd/system/
@@ -99,6 +111,65 @@ nano deploy/launch-kiosk.sh
 ```
 
 Then reboot (or log out and log in). The Pi should start the backend at boot and, after you log in, open the Spotify UI in fullscreen.
+
+#### Troubleshooting: not starting on launch
+
+**1. Check the backend service**
+
+```bash
+sudo systemctl status spotify-pi-thing
+```
+
+- If it says **active (running)** and you see no errors, the backend is fine. If it says **failed** or **inactive**, check logs:
+
+```bash
+journalctl -u spotify-pi-thing -n 40 --no-pager
+```
+
+- Typical fixes: **User=** and paths in the service must match your Pi. If your username is not `pi` or the project is not in `/home/pi/SpotifyPiThing`, edit the service:
+
+```bash
+sudo nano /etc/systemd/system/spotify-pi-thing.service
+```
+
+Update `User=`, `WorkingDirectory=`, `Environment=`, and `ExecStart=` to use your username and project path (e.g. `/home/karan/SpotifyPiThing`). Then:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart spotify-pi-thing
+```
+
+**2. Check that the backend is reachable**
+
+```bash
+curl -s http://127.0.0.1:8888/api/auth/status
+```
+
+You should see something like `{"authenticated":false,"configured":true}`. If nothing or "Connection refused", the service isn’t running (go back to step 1).
+
+**3. Kiosk (browser) only runs after desktop login**
+
+- Autostart runs when you **log into the desktop** (graphical session). If you boot to **console only** (no desktop), the kiosk script never runs — either boot to desktop or start the browser yourself.
+- If you use a **different username** (e.g. not `pi`), the path inside the desktop file is wrong. Edit it:
+
+```bash
+nano ~/.config/autostart/spotify-pi-thing-kiosk.desktop
+```
+
+Set `Exec=` to the **full path** of `launch-kiosk.sh`, e.g. `/home/yourusername/SpotifyPiThing/deploy/launch-kiosk.sh`. Save, then log out and log in again (or reboot).
+
+**4. Run the kiosk script by hand to see errors**
+
+```bash
+cd ~/SpotifyPiThing
+./deploy/launch-kiosk.sh
+```
+
+If Chromium is missing: `sudo apt install chromium-browser`. If you see another error, fix that (e.g. wrong path, no DISPLAY).
+
+**5. Kiosk log**
+
+After logging in (or after a reboot), check: `cat /tmp/spotify-pi-kiosk.log`. If the script ran, you'll see a timestamp and either "Launching chromium-browser" or "ERROR Chromium not found". If the file is missing, the autostart entry didn't run (wrong Exec path or not booting to desktop).
 
 **Optional:** To avoid the screen going blank on the 3.5" display:
 
