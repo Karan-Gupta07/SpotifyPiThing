@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Spotify Pi Thing Kiosk
+Comment=Open Spotify Pi Thing in fullscreen
+Exec=/home/pi/SpotifyPiThing/deploy/launch-kiosk.sh
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
