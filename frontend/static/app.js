@@ -22,7 +22,9 @@
   const btnPlayPause = $("btn-play-pause");
   const btnPrev = $("btn-prev");
   const btnNext = $("btn-next");
+  const btnLike = $("btn-like");
   const volumeSlider = $("volume");
+  let currentTrackId = null;
 
   function showScreen(screen) {
     [loginScreen, playerScreen, loadingEl].forEach((s) => hide(s));
@@ -59,6 +61,7 @@
   function applyNowPlaying(data) {
     const t = data?.track;
     if (!t) {
+      currentTrackId = null;
       trackName.textContent = "Nothing playing";
       artistName.textContent = "—";
       albumName.textContent = "";
@@ -66,8 +69,12 @@
       art.style.display = "none";
       show(noArt);
       btnPlayPause.textContent = "▶";
+      btnLike.textContent = "♡";
+      btnLike.classList.remove("saved");
+      btnLike.disabled = true;
       return;
     }
+    currentTrackId = t.id || null;
     trackName.textContent = t.name || "—";
     artistName.textContent = t.artist || "—";
     albumName.textContent = t.album || "";
@@ -82,6 +89,9 @@
       show(noArt);
     }
     btnPlayPause.textContent = t.is_playing ? "⏸" : "▶";
+    btnLike.disabled = !currentTrackId;
+    btnLike.textContent = t.is_saved ? "♥" : "♡";
+    btnLike.classList.toggle("saved", !!t.is_saved);
   }
 
   async function refreshNowPlaying() {
@@ -180,6 +190,17 @@
     }
   }
 
+  async function toggleLike() {
+    if (!currentTrackId) return;
+    try {
+      await fetchJson("/like/toggle?track_id=" + encodeURIComponent(currentTrackId), { method: "POST" });
+      await refreshNowPlaying();
+    } catch (e) {
+      console.error(e);
+      refreshNowPlaying();
+    }
+  }
+
   let volumeDebounce;
   function onVolumeChange() {
     const val = parseInt(volumeSlider.value, 10);
@@ -192,6 +213,7 @@
   btnPlayPause.addEventListener("click", playPause);
   btnPrev.addEventListener("click", previous);
   btnNext.addEventListener("click", next);
+  btnLike.addEventListener("click", toggleLike);
   volumeSlider.addEventListener("input", onVolumeChange);
 
   init();

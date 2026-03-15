@@ -22,9 +22,11 @@ def has_spotify_credentials() -> bool:
     """True if both client id and secret are set (so we can attempt auth)."""
     return bool(SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET)
 
-# Scopes needed for playback and now-playing
+# Scopes needed for playback, now-playing, and liked songs
 SCOPES = [
     "user-read-playback-state",
     "user-modify-playback-state",
     "user-read-currently-playing",
+    "user-library-read",
+    "user-library-modify",
 ]

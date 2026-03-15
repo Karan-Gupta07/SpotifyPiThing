@@ -91,18 +91,27 @@ def now_playing():
     if not current or not current.get("item"):
         return {"track": None}
     item = current["item"]
+    track_id = item.get("id")
     album = item.get("album") or {}
     images = album.get("images") or []
     art_url = images[0]["url"] if images else None
     artists = item.get("artists") or []
     artist_names = ", ".join(a.get("name", "") for a in artists)
+    is_saved = False
+    if track_id:
+        try:
+            is_saved = sp.current_user_saved_tracks_contains([track_id])[0]
+        except Exception:
+            pass
     return {
         "track": {
+            "id": track_id,
             "name": item.get("name"),
             "artist": artist_names,
             "album": album.get("name"),
             "art_url": art_url,
             "is_playing": current.get("is_playing", False),
+            "is_saved": is_saved,
         }
     }
 
@@ -140,6 +149,23 @@ def previous_track():
     """Go to previous track (or restart current)."""
     _require_client().previous_track()
     return {"ok": True}
+
+
+@app.post("/api/like/toggle")
+def like_toggle(track_id: str):
+    """Add current track to Liked Songs, or remove if already saved."""
+    if not track_id:
+        raise HTTPException(status_code=400, detail="track_id required")
+    sp = _require_client()
+    try:
+        saved = sp.current_user_saved_tracks_contains([track_id])[0]
+        if saved:
+            sp.current_user_saved_tracks_delete([track_id])
+        else:
+            sp.current_user_saved_tracks_add([track_id])
+        return {"ok": True, "is_saved": not saved}
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=str(e))
 
 
 @app.post("/api/volume")
