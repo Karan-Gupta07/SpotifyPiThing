@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=320, height=480, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#2d2520" />
+  <meta name="theme-color" content="#1e1e1e" />
   <title>Spotify — Pi</title>
   <link rel="stylesheet" href="/static/app.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <!-- Main player screen — fills 320×480 -->
+    <!-- Main player screen — compact widget style with progress bar -->
     <div id="player-screen" class="screen hidden">
       <div class="player-inner">
         <div class="now-playing">
@@ -34,14 +34,21 @@
           <div class="meta">
             <h2 id="track-name" class="track-name">—</h2>
             <p id="artist-name" class="artist-name">—</p>
-            <p id="album-name" class="album-name"></p>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+          <div class="progress-times">
+            <span id="time-current" class="time-current">0:00</span>
+            <span id="time-remaining" class="time-remaining">-0:00</span>
           </div>
         </div>
         <div class="controls">
-          <button type="button" id="btn-prev" class="ctrl-btn" title="Previous" aria-label="Previous track">⏮</button>
+          <button type="button" id="btn-prev" class="ctrl-btn" title="Previous" aria-label="Previous">⏮</button>
           <button type="button" id="btn-play-pause" class="ctrl-btn play-pause" title="Play / Pause" aria-label="Play or Pause">▶</button>
-          <button type="button" id="btn-next" class="ctrl-btn" title="Next" aria-label="Next track">⏭</button>
-          <button type="button" id="btn-like" class="ctrl-btn ctrl-btn-like" title="Like / Add to Liked Songs" aria-label="Add to Liked Songs">♡</button>
+          <button type="button" id="btn-next" class="ctrl-btn" title="Next" aria-label="Next">⏭</button>
         </div>
         <div class="volume-wrap">
           <span class="vol-label">Vol</span>

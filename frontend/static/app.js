@@ -18,13 +18,21 @@
   const noArt = $("no-art");
   const trackName = $("track-name");
   const artistName = $("artist-name");
-  const albumName = $("album-name");
   const btnPlayPause = $("btn-play-pause");
   const btnPrev = $("btn-prev");
   const btnNext = $("btn-next");
-  const btnLike = $("btn-like");
   const volumeSlider = $("volume");
-  let currentTrackId = null;
+  const progressFill = $("progress-fill");
+  const timeCurrent = $("time-current");
+  const timeRemaining = $("time-remaining");
+
+  function msToTime(ms) {
+    if (ms == null || !isFinite(ms) || ms < 0) return "0:00";
+    const totalSec = Math.floor(ms / 1000);
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
 
   function showScreen(screen) {
     [loginScreen, playerScreen, loadingEl].forEach((s) => hide(s));
@@ -61,23 +69,19 @@
   function applyNowPlaying(data) {
     const t = data?.track;
     if (!t) {
-      currentTrackId = null;
       trackName.textContent = "Nothing playing";
       artistName.textContent = "—";
-      albumName.textContent = "";
       art.removeAttribute("src");
       art.style.display = "none";
       show(noArt);
       btnPlayPause.textContent = "▶";
-      btnLike.textContent = "♡";
-      btnLike.classList.remove("saved");
-      btnLike.disabled = true;
+      progressFill.style.width = "0%";
+      timeCurrent.textContent = "0:00";
+      timeRemaining.textContent = "-0:00";
       return;
     }
-    currentTrackId = t.id || null;
     trackName.textContent = t.name || "—";
     artistName.textContent = t.artist || "—";
-    albumName.textContent = t.album || "";
     if (t.art_url) {
       art.src = t.art_url;
       art.alt = t.album ? `Album: ${t.album}` : "";
@@ -89,9 +93,12 @@
       show(noArt);
     }
     btnPlayPause.textContent = t.is_playing ? "⏸" : "▶";
-    btnLike.disabled = !currentTrackId;
-    btnLike.textContent = t.is_saved ? "♥" : "♡";
-    btnLike.classList.toggle("saved", !!t.is_saved);
+    const duration = t.duration_ms || 0;
+    const progress = t.progress_ms || 0;
+    const pct = duration > 0 ? Math.min(100, (progress / duration) * 100) : 0;
+    progressFill.style.width = pct + "%";
+    timeCurrent.textContent = msToTime(progress);
+    timeRemaining.textContent = "-" + msToTime(Math.max(0, duration - progress));
   }
 
   async function refreshNowPlaying() {
@@ -190,17 +197,6 @@
     }
   }
 
-  async function toggleLike() {
-    if (!currentTrackId) return;
-    try {
-      await fetchJson("/like/toggle?track_id=" + encodeURIComponent(currentTrackId), { method: "POST" });
-      await refreshNowPlaying();
-    } catch (e) {
-      console.error(e);
-      refreshNowPlaying();
-    }
-  }
-
   let volumeDebounce;
   function onVolumeChange() {
     const val = parseInt(volumeSlider.value, 10);
@@ -213,7 +209,6 @@
   btnPlayPause.addEventListener("click", playPause);
   btnPrev.addEventListener("click", previous);
   btnNext.addEventListener("click", next);
-  btnLike.addEventListener("click", toggleLike);
   volumeSlider.addEventListener("input", onVolumeChange);
 
   init();
