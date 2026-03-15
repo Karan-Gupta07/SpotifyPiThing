@@ -29,22 +29,7 @@ A standalone Raspberry Pi Spotify controller that acts like a small in-car conso
 
 ## Deploy on Raspberry Pi (GitHub → Pi → startup + fullscreen)
 
-### 1. Push the project to GitHub (from your PC)
-
-```bash
-cd C:\Users\Karan\CursorProj\SpotifyPiThing
-git init
-git add .
-git commit -m "Spotify Pi Thing"
-# Create a new repo on GitHub, then:
-git remote add origin https://github.com/YOUR_USERNAME/SpotifyPiThing.git
-git branch -M main
-git push -u origin main
-```
-
-(Don’t commit `.env` — it’s in `.gitignore`. You’ll create `.env` on the Pi.)
-
-### 2. On the Pi: clone, install, configure
+### On the Pi: clone, install, configure
 
 SSH into the Pi or use a terminal on the device, then:
 
