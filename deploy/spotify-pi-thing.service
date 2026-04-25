@@ -1,7 +1,7 @@
 [Unit]
 Description=Spotify Pi Thing API
 After=network-online.target
-WantedBy=multi-user.target
+Wants=network-online.target
 
 [Service]
 Type=simple
@@ -9,6 +9,7 @@ User=pi
 WorkingDirectory=/home/pi/SpotifyPiThing
 Environment=PATH=/home/pi/SpotifyPiThing/venv/bin
 Environment=PYTHONPATH=/home/pi/SpotifyPiThing
+ExecStartPre=/bin/sleep 5
 ExecStart=/home/pi/SpotifyPiThing/venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8888
 Restart=always
 RestartSec=5

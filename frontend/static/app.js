@@ -13,8 +13,8 @@
 (function () {
   const API = "/api";
   const POLL_MS = 3000;           // normal polling cadence
-  const AUTH_RETRY_MAX = 5;       // how many times to retry auth on boot
-  const AUTH_RETRY_DELAY = 2000;  // ms between auth retries
+  const AUTH_RETRY_MAX = 10;      // how many times to retry auth on boot
+  const AUTH_RETRY_DELAY = 3000;  // ms between auth retries
 
   const $ = (id) => document.getElementById(id);
   const show = (el) => { el.classList.remove("hidden"); };
