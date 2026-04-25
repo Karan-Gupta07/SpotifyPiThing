@@ -9,6 +9,15 @@ LOG="/tmp/spotify-pi-kiosk.log"
 # Give the desktop session a moment to be ready (helps autostart)
 sleep 3
 
+# Disable screen blanking / power management so the display stays on 24/7.
+# Works on X11 (xset) — silently skipped on Wayland if xset isn't available.
+if command -v xset &>/dev/null; then
+  xset s off        # disable screensaver
+  xset -dpms        # disable display power management
+  xset s noblank    # prevent screen blanking
+  echo "$(date): Screen blanking disabled (xset)" >> "$LOG" 2>/dev/null || true
+fi
+
 echo "$(date): Starting Spotify Pi Thing kiosk" >> "$LOG" 2>/dev/null || true
 echo "Waiting for Spotify Pi Thing backend..."
 for i in $(seq 1 $MAX_WAIT); do
