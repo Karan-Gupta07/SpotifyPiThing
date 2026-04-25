@@ -5,12 +5,12 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=pi
-WorkingDirectory=/home/pi/SpotifyPiThing
-Environment=PATH=/home/pi/SpotifyPiThing/venv/bin
-Environment=PYTHONPATH=/home/pi/SpotifyPiThing
+User=karan
+WorkingDirectory=/home/karan/SpotifyPiThing
+Environment=PATH=/home/karan/SpotifyPiThing/venv/bin
+Environment=PYTHONPATH=/home/karan/SpotifyPiThing
 ExecStartPre=/bin/sleep 5
-ExecStart=/home/pi/SpotifyPiThing/venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8888
+ExecStart=/home/karan/SpotifyPiThing/venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8888
 Restart=always
 RestartSec=5
 
